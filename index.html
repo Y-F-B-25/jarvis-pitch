@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Jarvis — What Happens When AI Becomes Your Team</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,500&display=swap');
+
+  :root {
+    --bg: #0b0b10;
+    --surface: #111118;
+    --surface2: #181822;
+    --border: #252535;
+    --text: #e4e4ec;
+    --dim: #8585a0;
+    --accent: #7c6cff;
+    --accent-soft: rgba(124,108,255,0.08);
+    --green: #34d399;
+    --green-soft: rgba(52,211,153,0.08);
+    --gold: #f5c542;
+    --gold-soft: rgba(245,197,66,0.06);
+    --warm: #f0ece4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout ── */
+  .container { max-width: 820px; margin: 0 auto; padding: 0 2rem; }
+  .wide-container { max-width: 1060px; margin: 0 auto; padding: 0 2rem; }
+  section { padding: 6rem 0; }
+  .divider { height: 1px; background: var(--border); max-width: 820px; margin: 0 auto; }
+
+  /* ── Typography ── */
+  .serif { font-family: 'Playfair Display', Georgia, serif; }
+  .label {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; display: block;
+  }
+  h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; line-height: 1.2; margin-bottom: 1.2rem; }
+  h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; }
+  p.lead { font-size: 1.1rem; color: var(--dim); max-width: 640px; margin-bottom: 2rem; }
+  p.body { font-size: 1rem; color: var(--dim); line-height: 1.8; margin-bottom: 1.5rem; }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 4rem 2rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 50%, rgba(124,108,255,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 30%, rgba(52,211,153,0.04) 0%, transparent 70%);
+  }
+  .hero-inner { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; width: 100%; }
+  .hero-eyebrow {
+    font-size: 0.82rem; font-weight: 500; color: var(--green);
+    margin-bottom: 1.5rem; letter-spacing: 0.02em;
+  }
+  .hero h1 {
+    font-size: clamp(2.8rem, 6vw, 4rem); font-weight: 800; line-height: 1.08;
+    margin-bottom: 1.8rem; max-width: 700px;
+  }
+  .hero h1 .highlight {
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .hero-sub {
+    font-size: 1.15rem; color: var(--dim); max-width: 580px;
+    line-height: 1.7; margin-bottom: 3rem;
+  }
+  .hero-proof {
+    display: flex; gap: 2.5rem; flex-wrap: wrap;
+  }
+  .hero-proof-item {
+    display: flex; flex-direction: column;
+  }
+  .hero-proof-item .val {
+    font-size: 1.6rem; font-weight: 700; color: var(--text);
+  }
+  .hero-proof-item .desc {
+    font-size: 0.78rem; color: var(--dim); margin-top: 0.15rem;
+  }
+
+  /* ── Before/After ── */
+  .compare {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  .compare-card {
+    padding: 2rem; border-radius: 14px; border: 1px solid var(--border);
+  }
+  .compare-card.before { background: var(--surface); }
+  .compare-card.after {
+    background: linear-gradient(135deg, var(--accent-soft), var(--green-soft));
+    border-color: rgba(124,108,255,0.2);
+  }
+  .compare-card h3 {
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 1.2rem;
+  }
+  .compare-card.before h3 { color: var(--dim); }
+  .compare-card.after h3 { color: var(--green); }
+  .compare-card li {
+    font-size: 0.92rem; color: var(--dim); margin-bottom: 0.7rem;
+    list-style: none; padding-left: 1.4rem; position: relative;
+    line-height: 1.5;
+  }
+  .compare-card.before li::before {
+    content: '\2715'; position: absolute; left: 0; color: #ff6b6b; font-size: 0.75rem; top: 0.2rem;
+  }
+  .compare-card.after li::before {
+    content: '\2713'; position: absolute; left: 0; color: var(--green); font-size: 0.8rem; top: 0.15rem;
+  }
+
+  /* ── Results Grid ── */
+  .results-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.2rem; margin: 2rem 0;
+  }
+  .result-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.8rem;
+  }
+  .result-card .num {
+    font-size: 2rem; font-weight: 800; margin-bottom: 0.3rem;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .result-card .title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .result-card .desc { font-size: 0.85rem; color: var(--dim); line-height: 1.5; }
+
+  /* ── How It Works ── */
+  .how-section {
+    margin-bottom: 2.5rem;
+  }
+  .how-header {
+    display: flex; align-items: flex-start; gap: 1rem;
+    margin-bottom: 0.8rem;
+  }
+  .how-number {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+  }
+  .how-title { font-size: 1.1rem; font-weight: 600; padding-top: 0.35rem; }
+  .how-body { font-size: 0.95rem; color: var(--dim); line-height: 1.7; padding-left: 3rem; }
+  .how-body .tech-note {
+    display: inline; color: var(--dim); font-size: 0.85rem;
+  }
+
+  /* ── Expandable Tech Details ── */
+  details {
+    margin-top: 0.8rem; margin-left: 3rem;
+  }
+  details summary {
+    font-size: 0.78rem; font-weight: 500; color: var(--accent);
+    cursor: pointer; user-select: none; padding: 0.4rem 0;
+    letter-spacing: 0.02em;
+  }
+  details summary:hover { color: var(--green); }
+  details[open] summary { margin-bottom: 0.5rem; }
+  details .tech-content {
+    font-size: 0.82rem; color: var(--dim); line-height: 1.7;
+    padding: 1rem 1.2rem; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  details .tech-content code {
+    font-family: 'SF Mono', Menlo, monospace; font-size: 0.78rem;
+    background: var(--surface2); padding: 0.15rem 0.4rem; border-radius: 4px;
+    color: var(--accent);
+  }
+
+  /* ── What Agents Do ── */
+  .agent-stories {
+    display: grid; grid-template-columns: 1fr; gap: 1.2rem;
+    margin: 2rem 0;
+  }
+  .agent-story {
+    display: flex; gap: 1.2rem; align-items: flex-start;
+    padding: 1.5rem 1.8rem; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 14px;
+    transition: border-color 0.2s;
+  }
+  .agent-story:hover { border-color: var(--accent); }
+  .agent-story .icon {
+    width: 42px; height: 42px; border-radius: 11px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 700; color: #fff;
+  }
+  .agent-story .content { flex: 1; }
+  .agent-story .name { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.1rem; }
+  .agent-story .role { font-size: 0.78rem; color: var(--dim); margin-bottom: 0.5rem; }
+  .agent-story .what { font-size: 0.88rem; color: var(--dim); line-height: 1.6; }
+
+  /* ── Differentiators ── */
+  .diff-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem; margin: 2rem 0;
+  }
+  .diff-card {
+    padding: 1.8rem; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+  .diff-card .tag {
+    font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem;
+  }
+  .diff-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .diff-card p { font-size: 0.88rem; color: var(--dim); line-height: 1.6; }
+
+  /* ── Consulting / CTA ── */
+  .paths {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.2rem; margin: 2rem 0;
+  }
+  .path-card {
+    padding: 2rem; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; transition: border-color 0.2s;
+  }
+  .path-card:hover { border-color: var(--accent); }
+  .path-card .path-label {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 0.8rem;
+  }
+  .path-card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .path-card p { font-size: 0.88rem; color: var(--dim); line-height: 1.6; }
+
+  .final-cta {
+    text-align: center; padding: 6rem 2rem;
+  }
+  .final-cta h2 {
+    font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 700; margin-bottom: 1rem;
+  }
+  .final-cta p { color: var(--dim); max-width: 520px; margin: 0 auto 2rem; font-size: 1.05rem; }
+  .cta-btn {
+    display: inline-block; padding: 0.9rem 2.4rem;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    color: #fff; font-weight: 600; font-size: 0.92rem;
+    border-radius: 10px; text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .cta-btn:hover { opacity: 0.9; }
+
+  /* ── Vision Timeline ── */
+  .vision-items {
+    margin: 2rem 0; display: flex; flex-direction: column; gap: 1.5rem;
+  }
+  .vision-item {
+    display: flex; gap: 1.2rem; align-items: flex-start;
+  }
+  .vision-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 0.45rem;
+  }
+  .vision-dot.done { background: var(--green); }
+  .vision-dot.now { background: var(--accent); box-shadow: 0 0 10px rgba(124,108,255,0.4); }
+  .vision-dot.future { background: var(--border); }
+  .vision-text .v-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.15rem; }
+  .vision-text .v-desc { font-size: 0.88rem; color: var(--dim); line-height: 1.5; }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .compare { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2.2rem; }
+    .hero-proof { gap: 1.5rem; }
+    details { margin-left: 0; }
+    .how-body { padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--                    HERO                    -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Project Jarvis</div>
+    <h1>I have seven AI employees. <br><span class="highlight">My only job is making decisions.</span></h1>
+    <p class="hero-sub">
+      They build my website, direct my short film, manage my legal case, evaluate AI tools, and maintain their own infrastructure. They coordinate with each other, remember everything, and never need to be told the same thing twice.
+    </p>
+    <p class="hero-sub" style="margin-top:-1.5rem; font-size: 0.95rem; color: var(--dim);">
+      This is Project Jarvis &mdash; a multi-agent AI system I built and run daily. It's not a demo. It's not a concept. It's a live production system managing five real projects simultaneously.
+    </p>
+    <div class="hero-proof">
+      <div class="hero-proof-item"><div class="val">7</div><div class="desc">AI agents running in parallel</div></div>
+      <div class="hero-proof-item"><div class="val">5</div><div class="desc">Real projects managed simultaneously</div></div>
+      <div class="hero-proof-item"><div class="val">30+</div><div class="desc">Agent sessions completed</div></div>
+      <div class="hero-proof-item"><div class="val">0</div><div class="desc">Terminal commands I type</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--              THE PROBLEM                   -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <span class="label">The Problem</span>
+    <h2>AI today is a brilliant amnesiac</h2>
+    <p class="body">
+      Most people use AI the same way: open a chat, ask a question, get an answer, close the window. Tomorrow you start over. The AI doesn't remember what you told it yesterday. It doesn't know what your other conversations were about. It can't talk to itself. You end up being the one holding all the context, doing all the coordination, repeating yourself constantly.
+    </p>
+    <p class="body">
+      You're getting help from the smartest intern in the world &mdash; but an intern who shows up every morning with no memory of yesterday, no idea what their coworkers are working on, and no way to hand off their notes to the next shift.
+    </p>
+    <p class="body" style="color: var(--text); font-weight: 500;">
+      What if AI could be a team instead of a chatbot?
+    </p>
+
+    <div class="compare">
+      <div class="compare-card before">
+        <h3>How most people use AI</h3>
+        <ul>
+          <li>One conversation at a time, starting from scratch</li>
+          <li>You hold all the context in your head</li>
+          <li>Nothing carries over between sessions</li>
+          <li>You're the project manager, secretary, and relay system</li>
+          <li>AI helps you think, but you still do everything</li>
+        </ul>
+      </div>
+      <div class="compare-card after">
+        <h3>How Project Jarvis works</h3>
+        <ul>
+          <li>Seven specialists working in parallel across five projects</li>
+          <li>A shared knowledge base that every agent reads on startup</li>
+          <li>Structured handoffs preserve context across sessions &mdash; forever</li>
+          <li>A Chief of Staff agent coordinates everything for you</li>
+          <li>You make decisions. They handle everything else.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--              REAL RESULTS                  -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <span class="label">What It's Actually Doing</span>
+    <h2>Five projects. One person. Running right now.</h2>
+    <p class="lead">These aren't hypothetical use cases. These are real projects producing real output, managed by real agents, today.</p>
+
+    <div class="agent-stories">
+
+      <div class="agent-story">
+        <div class="icon" style="background: linear-gradient(135deg, var(--accent), var(--green));">B</div>
+        <div class="content">
+          <div class="name">Benji &mdash; Chief of Staff</div>
+          <div class="role">The only agent I talk to directly. Coordinates everyone else.</div>
+          <div class="what">Benji writes the instructions for every other agent, monitors their progress, flags when something's stuck, maintains the knowledge base, and keeps a Notion dashboard updated so I can see the state of everything in one glance. Currently on version 9 &mdash; meaning Benji has handed off context to itself nine times without losing a single detail.</div>
+        </div>
+      </div>
+
+      <div class="agent-story">
+        <div class="icon" style="background: #2563eb;">W</div>
+        <div class="content">
+          <div class="name">Website Agent</div>
+          <div class="role">Building my personal site &mdash; currently on its 12th iterative version</div>
+          <div class="what">Writes code, pushes it to GitHub, deploys to Vercel, and verifies the result &mdash; all without me opening a code editor. Tonight it shipped a collapsed navigation system with a full-screen menu overlay, refined a portrait layout to near-edge placement, and reversed bio text colors for better visual hierarchy. Each version builds on the last, informed by design references I share.</div>
+        </div>
+      </div>
+
+      <div class="agent-story">
+        <div class="icon" style="background: #dc2626;">A</div>
+        <div class="content">
+          <div class="name">Arbitrage Agent</div>
+          <div class="role">Directing an AI-animated short film</div>
+          <div class="what">Manages the creative pipeline for a short film: 14 scenes generated through Midjourney for stills, animated through Luma Labs, narrated with a cloned voice through ElevenLabs, assembled with FFmpeg, and polished in DaVinci Resolve. The agent structures my creative feedback into specific edit plans for each scene.</div>
+        </div>
+      </div>
+
+      <div class="agent-story">
+        <div class="icon" style="background: #059669;">G</div>
+        <div class="content">
+          <div class="name">Griot Stack Agent</div>
+          <div class="role">AI tool evaluator and pipeline architect</div>
+          <div class="what">Tests and compares AI video generation tools (Runway Gen-4 vs. Luma Ray Flash 2 vs. NanoBanana), builds a scene-type routing matrix &mdash; which tool works best for which kind of shot &mdash; and feeds those findings back to the Arbitrage agent. It's building the playbook for AI-driven media production.</div>
+        </div>
+      </div>
+
+      <div class="agent-story">
+        <div class="icon" style="background: #7c3aed;">L</div>
+        <div class="content">
+          <div class="name">Attorney Agent</div>
+          <div class="role">Contracts, legal admin, and business compliance</div>
+          <div class="what">Handles the operational side of legal and business administration &mdash; organizing documentation, tracking deadlines, coordinating with outside counsel, drafting responses, and synthesizing strategic advice from multiple attorneys into clear decision frameworks. All structured, cross-referenced, and audit-ready.</div>
+        </div>
+      </div>
+
+      <div class="agent-story">
+        <div class="icon" style="background: #ca8a04;">S</div>
+        <div class="content">
+          <div class="name">AI Stack Agent</div>
+          <div class="role">The agent that builds the system itself</div>
+          <div class="what">This is the meta-layer. The AI Stack agent designs and maintains the infrastructure that all other agents use: the knowledge base structure, the quality-check system, the session lifecycle protocols. It's an agent whose job is to make every other agent work better.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--              HOW IT WORKS                  -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <span class="label">Under the Hood</span>
+    <h2>How the system actually works</h2>
+    <p class="lead">Plain English first. Click any "Technical details" section if you want to see exactly how it's built.</p>
+
+    <div class="how-section">
+      <div class="how-header">
+        <div class="how-number">1</div>
+        <div class="how-title">Every agent starts by reading the master index</div>
+      </div>
+      <p class="how-body">
+        There's a single document that tells every agent where everything is: which projects exist, who's working on what, where to find past work, and what rules to follow. When an agent starts a new session, it reads this index first. It never asks me for context it can find itself.
+      </p>
+      <details>
+        <summary>Technical details &rarr;</summary>
+        <div class="tech-content">
+          The master index is <code>BRAIN_INDEX.md</code>, a structured Markdown file in an Obsidian vault. It contains project locations, agent session registry, file paths to every key document, and 13 codified governance rules. The vault itself has 200+ files organized into 10 numbered sections (Home, Security, Architecture, Projects, Operations, Sessions, Decisions, Contacts, Handoffs, VaultBus). Agents query specific files on demand rather than loading the entire vault.
+        </div>
+      </details>
+    </div>
+
+    <div class="how-section">
+      <div class="how-header">
+        <div class="how-number">2</div>
+        <div class="how-title">Agents coordinate through a structured message system</div>
+      </div>
+      <p class="how-body">
+        Benji sends instructions to other agents through a messaging system. Each agent has an inbox. Messages are tracked from creation through delivery to completion. If something gets stuck, the system flags it. There's a complete audit trail of every message ever sent.
+      </p>
+      <details>
+        <summary>Technical details &rarr;</summary>
+        <div class="tech-content">
+          The coordination protocol is called <code>VaultBus</code>. It has five layers: Status (each agent's current state), Commands (directives from Benji to agents), Escalations (blockers needing attention), Events (append-only audit log in NDJSON), and Views (human-readable dashboards). A Python daemon backed by <code>SQLite</code> provides durable message routing with a strict lifecycle state machine: <code>created &rarr; queued &rarr; delivered &rarr; acknowledged &rarr; completed/failed/expired</code>. Messages are idempotent (SHA-256 checksum tracking prevents duplicates). Commands are immutable after creation.
+        </div>
+      </details>
+    </div>
+
+    <div class="how-section">
+      <div class="how-header">
+        <div class="how-number">3</div>
+        <div class="how-title">Context survives forever through structured handoffs</div>
+      </div>
+      <p class="how-body">
+        AI conversations have a limit on how much they can hold in memory. When an agent approaches that limit, it writes a detailed handoff document &mdash; what it accomplished, what's still pending, what decisions were made, and exact next steps. The next version of that agent starts by reading the handoff and picks up exactly where the last one left off. The Website agent is on version 12. It inherited everything from versions 1 through 11 without loading a single old conversation.
+      </p>
+      <details>
+        <summary>Technical details &rarr;</summary>
+        <div class="tech-content">
+          This is the <strong>Context Ceiling Protocol</strong>. Agents track their tool call count from session start. At 60 calls they enter "yellow zone" and notify the user. At 80 calls they hard-stop: checkpoint current task, update their VaultBus status file, write a structured handoff document (standardized template covering accomplishments, pending work, context, next steps, lessons learned), and update the session README. The handoff is then incorporated into the next version's boot prompt. Version numbers reflect usage intensity, not calendar time &mdash; a heavily used agent versions up quickly, a light-use agent stays at v1. There are currently 16 handoff documents in the vault, forming a continuous knowledge chain.
+        </div>
+      </details>
+    </div>
+
+    <div class="how-section">
+      <div class="how-header">
+        <div class="how-number">4</div>
+        <div class="how-title">Agents can take real actions on my computer</div>
+      </div>
+      <p class="how-body">
+        AI agents typically run in a sandbox &mdash; they can read and write files but can't actually do things like push code to GitHub or run a build process. I have a secure bridge that lets agents send specific, pre-approved commands to my actual machine. The Website agent uses this to commit code, push it to GitHub, and trigger deployments on Vercel &mdash; all without me touching anything.
+      </p>
+      <details>
+        <summary>Technical details &rarr;</summary>
+        <div class="tech-content">
+          The bridge is called the <strong>Watcher</strong> &mdash; a Python script (<code>cowork_watcher_v2.py</code>) running in a terminal on the host machine. It polls a JSON inbox file for commands, executes them locally (where git credentials, dev tools, and network access are available), and writes results to an outbox file. Security: requires an auth token on every command, enforces a command allowlist, blocks dangerous patterns (<code>rm -rf</code>, <code>sudo</code>, <code>curl | bash</code>), rate-limits to 2-second intervals, and logs everything. All git remote operations (push, pull, fetch) go through the watcher &mdash; never attempted from the sandbox.
+        </div>
+      </details>
+    </div>
+
+    <div class="how-section">
+      <div class="how-header">
+        <div class="how-number">5</div>
+        <div class="how-title">Quality is enforced through 13 governance rules</div>
+      </div>
+      <p class="how-body">
+        Every rule in the system exists because something went wrong without it. An early version of the Website agent ran too long, forgot its own protocols, and tried to push code through a method that couldn't work. Now there's a hard limit on session length. Another time, an agent created a useful file but didn't register it anywhere &mdash; the next agent couldn't find it. Now every file creation is paired with immediate registration. These aren't theoretical best practices. They're scar tissue turned into policy.
+      </p>
+      <details>
+        <summary>Technical details &rarr;</summary>
+        <div class="tech-content">
+          The 13 rules are codified in <code>BRAIN_INDEX.md</code> and enforced through boot prompts, handoff docs, and Benji's monitoring. Key examples: <strong>Rule 6</strong> &mdash; Create + Register is atomic (any new file must be registered in BRAIN_INDEX in the same action). <strong>Rule 10</strong> &mdash; Context Ceiling (hard stop at 80 tool calls, non-negotiable). <strong>Rule 12</strong> &mdash; Use Edit for existing files, not full rewrites (prevents invisible bugs). <strong>Rule 5</strong> &mdash; Zero mechanical work for the human. There's also a <strong>Vault Lint</strong> system (inspired by Andrej Karpathy's LLM wiki patterns) that periodically scans the knowledge base for structural issues: orphan files, broken references, stale information, and contradictions between documents.
+        </div>
+      </details>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--          WHAT MAKES THIS DIFFERENT         -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <span class="label">Why This Matters</span>
+    <h2>This isn't what you've seen before</h2>
+    <p class="lead">Every week there's a new "AI agent" demo. Most of them book flights, send emails, and break after three steps. Project Jarvis is something fundamentally different.</p>
+
+    <div class="diff-grid">
+      <div class="diff-card">
+        <div class="tag">Not Automation</div>
+        <h3>Creative reasoning, not task execution</h3>
+        <p>These agents don't fill out forms. They make design decisions informed by reference sites. They direct a film through a multi-tool AI pipeline. They synthesize legal strategy from five different attorneys. This is judgment work, not button-pressing.</p>
+      </div>
+      <div class="diff-card">
+        <div class="tag">Not Ephemeral</div>
+        <h3>Weeks of accumulated context</h3>
+        <p>Most AI conversations last one session. Project Jarvis agents inherit context from every previous version. The Website agent at v12 carries institutional knowledge from v1. Nothing is ever lost. The system gets smarter over time.</p>
+      </div>
+      <div class="diff-card">
+        <div class="tag">Not Fragile</div>
+        <h3>Governance that prevents degradation</h3>
+        <p>AI agents degrade when they run too long. We discovered this, built the Context Ceiling Protocol, and now it's enforced as law. Every failure we've encountered became a rule. The system hardens itself.</p>
+      </div>
+      <div class="diff-card">
+        <div class="tag">Not Narrow</div>
+        <h3>Five domains, one system</h3>
+        <p>Web development, filmmaking, legal case management, AI tool evaluation, knowledge infrastructure. The coordination patterns are domain-agnostic. If you can describe the work, you can build an agent for it.</p>
+      </div>
+      <div class="diff-card">
+        <div class="tag">Not Theoretical</div>
+        <h3>Running in production, daily</h3>
+        <p>This isn't a proof of concept or a weekend project. It's a live system that has run 30+ sessions, produced 16 structured handoffs, shipped 12 website versions, and managed a real legal case with real deadlines.</p>
+      </div>
+      <div class="diff-card">
+        <div class="tag">Not Dependent</div>
+        <h3>Built on standard tools, no proprietary lock-in</h3>
+        <p>Obsidian, Notion, Python, SQLite, GitHub, Vercel. No custom cloud infrastructure. No expensive APIs. The entire system runs on a Mac desktop with a mounted folder. Portable, reproducible, and affordable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--              THE NUMBERS                   -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <span class="label">By the Numbers</span>
+    <h2>What's been built so far</h2>
+
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="num">7</div>
+        <div class="title">Specialized agents</div>
+        <div class="desc">Each with a defined role, versioned history, and structured communication protocols</div>
+      </div>
+      <div class="result-card">
+        <div class="num">30+</div>
+        <div class="title">Sessions completed</div>
+        <div class="desc">With full context preserved across every session through structured handoffs</div>
+      </div>
+      <div class="result-card">
+        <div class="num">16</div>
+        <div class="title">Handoff documents</div>
+        <div class="desc">Forming a continuous knowledge chain &mdash; no context is ever lost between versions</div>
+      </div>
+      <div class="result-card">
+        <div class="num">200+</div>
+        <div class="title">Knowledge base files</div>
+        <div class="desc">Architecture docs, protocols, session histories, decision logs &mdash; all indexed and cross-referenced</div>
+      </div>
+      <div class="result-card">
+        <div class="num">12</div>
+        <div class="title">Website versions shipped</div>
+        <div class="desc">Each building on the last, pushed to production via GitHub and Vercel</div>
+      </div>
+      <div class="result-card">
+        <div class="num">13</div>
+        <div class="title">Governance rules</div>
+        <div class="desc">Each one exists because something went wrong without it &mdash; battle-tested, not theoretical</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--              THE VISION                    -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <span class="label">Where This Is Going</span>
+    <h2>The system is still evolving</h2>
+    <p class="lead">Project Jarvis is operational today, but the architecture is designed to grow as the underlying AI platforms improve.</p>
+
+    <div class="vision-items">
+      <div class="vision-item">
+        <div class="vision-dot done"></div>
+        <div class="vision-text">
+          <div class="v-title">Multi-agent foundation <span style="color:var(--green); font-size:0.8rem;">&mdash; complete</span></div>
+          <div class="v-desc">Seven agents, shared knowledge vault, coordination protocol, governance rules, Notion dashboard. The system works.</div>
+        </div>
+      </div>
+      <div class="vision-item">
+        <div class="vision-dot done"></div>
+        <div class="vision-text">
+          <div class="v-title">Durable message routing <span style="color:var(--green); font-size:0.8rem;">&mdash; complete</span></div>
+          <div class="v-desc">SQLite-backed message system with lifecycle tracking, delivery guarantees, and a full audit trail. Async but reliable.</div>
+        </div>
+      </div>
+      <div class="vision-item">
+        <div class="vision-dot now"></div>
+        <div class="vision-text">
+          <div class="v-title">Public release</div>
+          <div class="v-desc">Public GitHub repo with documentation, implementation guides, and templates. High-agency people clone and self-serve. Everyone else gets help.</div>
+        </div>
+      </div>
+      <div class="vision-item">
+        <div class="vision-dot future"></div>
+        <div class="vision-text">
+          <div class="v-title">Real-time agent communication</div>
+          <div class="v-desc">Today, agents can leave messages for each other but can't interrupt a running conversation. When the underlying platform enables real-time push, the coordination layer goes from poll-based to event-driven &mdash; and the system becomes truly autonomous.</div>
+        </div>
+      </div>
+      <div class="vision-item">
+        <div class="vision-dot future"></div>
+        <div class="vision-text">
+          <div class="v-title">Voice interface</div>
+          <div class="v-desc">Benji already has a voice. The roadmap includes a conversational mode where you can talk to your Chief of Staff out loud &mdash; same brain, same knowledge base, just a different interface.</div>
+        </div>
+      </div>
+
+      <div class="vision-item">
+        <div class="vision-dot future"></div>
+        <div class="vision-text">
+          <div class="v-title">Fully local models</div>
+          <div class="v-desc">Run the entire orchestration stack on local models &mdash; no cloud dependency, no API costs, complete data sovereignty. The coordination layer, governance rules, and knowledge vault are model-agnostic by design.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--            WHAT THIS MEANS FOR YOU         -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <span class="label">For You</span>
+    <h2>What this means, depending on who you are</h2>
+
+    <div class="paths">
+      <div class="path-card">
+        <div class="path-label" style="color: var(--green);">I want to build this myself</div>
+        <h3>Public repo + documentation</h3>
+        <p>A complete implementation guide is being published as a public GitHub repository. Folder structure templates, boot prompt examples, coordination protocols, governance rules, and the watcher bridge &mdash; everything you need to set up your own version. Free, open, and maintained.</p>
+      </div>
+      <div class="path-card">
+        <div class="path-label" style="color: var(--accent);">I want this for my business</div>
+        <h3>Consulting &amp; implementation</h3>
+        <p>I'll build a custom version for your use case. We'll identify which agent roles your work needs, set up the knowledge infrastructure, configure the coordination layer, establish the governance rules, and get your first agents running. Then I train your team to maintain and extend it.</p>
+      </div>
+      <div class="path-card">
+        <div class="path-label" style="color: var(--gold);">I want to understand this space</div>
+        <h3>Let's have a conversation</h3>
+        <p>Multi-agent AI is genuinely new territory. Most of what I've learned came from building, breaking, and fixing this system over weeks of real usage. If you're exploring what's possible with AI beyond chatbots, I'm happy to share what I know &mdash; the wins, the failures, and the lessons.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--               FINAL CTA                   -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="final-cta">
+  <h2>Built by Yacob Berhane</h2>
+  <p>Project Jarvis is live, operational, and evolving daily. This is what multi-agent AI looks like when it's built for real work, not for demos.</p>
+  <a href="mailto:yacob.f.berhane@gmail.com" class="cta-btn">Let's Talk</a>
+</div>
+
+</body>
+</html>
